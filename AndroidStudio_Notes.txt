@@ -1,0 +1,89 @@
+AndroidStudio notes
+
+0. 安装 Android ndk
+$ chmod a+x android-ndk-r10c-darwin-x86_64.bin
+$ ./android-ndk-r10c-darwin-x86_64.bin
+会解包到一个目录.
+
+
+1.  config ndk environment
+在项目JNIDemo内找到local.properties,接着添加
+ndk.dir=/Users/fanghui/Downloads/android-ndk-r10e
+
+
+如果build.gradle(Module:xxx)中ndk-build命令还是找不到，如下：
+
+task ndkBuild(type: Exec, description: "Task to run ndk-build") {
+    commandLine ‘ndk-build’
+}
+
+则要么加上全路径
+commandLine '/home/user/bin/android_ndk/android-ndk-r10e/ndk-build'
+或者： 
+
+task ndkBuild(type: Exec, description: "Task to run ndk-build") {
+    def ndkDir = android.ndkDirectory.getAbsolutePath()
+    commandLine ndkDir + "/ndk-build"
+}
+
+
+
+
+=======
+ndk-build NDK_APPLICATION_MK=/path/to/your/Application.mk
+
+You need to specify 3 things.
+
+NDK_PROJECT_PATH - the location of your project
+NDK_APPLICATION_MK - the path of the Application.mk file
+APP_BUILD_SCRIPT - the path to the Android.mk file
+
+These are needed to  override the default values of the build script, which expects things to be in the jni folder.
+
+When calling ndk-build use
+
+ndk-build NDK_PROJECT_PATH=/path/to/proj NDK_APPLICATION_MK=/path/to/Application.mk
+
+In Application.mk add
+
+APP_BUILD_SCRIPT := /path/to/Android.mk
+
+
+2. 增加jni log
+Try the following in your Android.mk file (for eclipse only):
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
+
+If you use Android Studio and gradle, it ignores Android.mk. Add this to your build.gradle file:
+android {
+    defaultConfig {
+        ndk {
+            moduleName "your_module_name"
+            ldLibs "log"
+        }
+    }
+}
+
+
+3. install apache ant:
+http://ant.apache.org/bindownload.cgi
+brew install ant
+To test the installation, just type "ant -version" 
+ 
+ 4. install adb and fastboot in Mac OS X
+
+adb 是 Android SDK 自带的工具, 在目录:
+/Users/fanghui/Library/Android/sdk/platform-tools/
+可设置.bash_profile加入path, 见 “install_genymotion.txt”.
+
+
+ install ADB and Fastboot: ./ADB-Install-Mac.sh
+ Allow the script to run and you'll be all set. Now the ADB and Fastboot files will be placed in /usr/bin/ on your Mac.
+  
+
+5. How to get JDK path on Mac:
+need to set JAVA_HOME to proper path of JDK
+run:
+/usr/libexec/java_home
+it’s like 
+/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home/
+
